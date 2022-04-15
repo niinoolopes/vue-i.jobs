@@ -1,18 +1,46 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Intro size="lg">
+      <h1>I.jobs</h1>
+      <p>Aqui cadastramos e encontramos vagas</p>
+      <p>
+        Seja bem vindo esperamos que encontre uma nova fase para sua vida
+        profissional
+      </p>
+    </Intro>
+
+    <h2>Candidatos</h2>
+    <HomePerfilList />
+
+    <h2>Vagas</h2>
+    <HomeJobsList />
+
+    <h2>Empresas</h2>
+    <HomeCompanyList />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import Intro from "../components/Intro.vue";
+import HomeJobsList from "../components/HomeJobsList.vue";
+import HomePerfilList from "../components/HomePerfilList.vue";
+import HomeCompanyList from "../components/HomeCompanyList.vue";
 
 export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
+  components: { Intro, HomeJobsList, HomePerfilList, HomeCompanyList },
+  name: "HomeView",
+};
+</script>
+
+<style lang="scss" scoped>
+h1 {
+  font-size: 2rem;
+  @media (min-width: 1000px) {
+    font-size: 3rem;
   }
 }
-</script>
+
+h2 {
+  @include text_subtitle;
+}
+</style>
