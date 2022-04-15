@@ -1,0 +1,86 @@
+@mixin container {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+@mixin display_grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@mixin display_flex_align_items {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@mixin display_flex_column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin display_flex_justify_space_between {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+@mixin transition {
+  transition: all 0.2s ease-in-out;
+}
+
+@mixin hover_filter {
+  filter: brightness(0.9);
+}
+
+@mixin text_subtitle {
+  font-size: 1rem;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 0.5em;
+}
+
+@mixin text_desc {
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+@mixin btn_base($color, $bg) {
+  display: inline-block;
+  padding: 0.15rem 0.75rem;
+  font-family: cursive;
+  border-radius: 0.25rem;
+
+  color: $color;
+  background: $bg;
+  border: 1px solid $color;
+  cursor: pointer;
+}
+
+@mixin input_base {
+  display: block;
+  width: calc(100% - 1rem);
+  padding: 0.35rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.5;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  // margin: 0.25rem 0.5rem;
+}
+
+@mixin card {
+  border-radius: 0.25rem;
+  box-shadow: 0 0.5rem 0.75rem rgba(0, 0, 0, 0.2);
+}
+
+@mixin header_page {
+  padding: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-white);
+  background: var(--color-black);
+  box-shadow: var(--shadow);
+}

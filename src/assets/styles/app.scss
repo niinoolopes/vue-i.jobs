@@ -1,0 +1,27 @@
+@import "./_root.scss";
+@import "./_reset.scss";
+@import "./_mixin.scss";
+
+#app {
+  min-height: 100vh;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+input,
+select {
+  @include input_base;
+
+  &:focus {
+    outline: none !important;
+    border: 1px solid var(--color-gray);
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.1);
+  }
+}
+
+// .form-field {
+//   width: 100%;
+//   margin-bottom: 01rem;
+// }
