@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import LoginFormSignIn from "../components/LoginFormSignIn";
-import LoginFormSignUp from "../components/LoginFormSignUp";
+import LoginFormSignIn from "../components/LoginFormSignIn.vue";
+import LoginFormSignUp from "../components/LoginFormSignUp.vue";
 
 export default {
   name: "LoginView",
