@@ -5,5 +5,5 @@ export default [
   { model: 'empresa', register: { name: 'empresa 2', description: 'somos a empresa 2', } },
   { model: 'empresa', register: { name: 'empresa 3', description: 'somos a empresa 3', } },
   { model: 'empresa', register: { name: 'empresa 7', description: 'somos a empresa 7', } },
-  { model: 'usuario', register: { name: 'Nino', email: 'nino@gmail.com', password: 1234 } },
+  { model: 'usuario', register: { name: 'Nino', email: 'nino@gmail.com', password: 1234, type: 'company' } },
 ]
