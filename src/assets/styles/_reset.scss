@@ -2,7 +2,20 @@
   box-sizing: border-box;
 }
 
-body {
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+// *::-webkit-scrollbar-button {
+//   background: var(--color-gray);
+// }
+*::-webkit-scrollbar-track-piece {
+  background: rgba(0, 0, 0, 0.2);
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+​ body {
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
