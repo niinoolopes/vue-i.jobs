@@ -1,14 +1,11 @@
 <template>
   <div class="job-list">
-    <div class="job" v-for="job in jobList" :key="job">
+    <div class="job" v-for="job in jobList" :key="job.id">
       <div class="job-header">
-        <p>name</p>
+        <p>{{ job.name }}</p>
       </div>
       <ul>
-        <li>PHP</li>
-        <li>JS</li>
-        <li>CSS</li>
-        <li>HTML</li>
+        <li v-for="skill in job.skill" :key="skill.id">{{ skill.name }}</li>
       </ul>
     </div>
   </div>
@@ -18,10 +15,11 @@
 export default {
   name: "HomePerfilList",
 
-  data() {
-    return {
-      jobList: [1, 2, 3, 4, 5],
-    };
+  props: {
+    jobList: {
+      type: Array,
+      default: () => [],
+    },
   },
 };
 </script>
@@ -29,8 +27,12 @@ export default {
 <style lang="scss" scoped>
 .job-list {
   @include display_grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 350px));
+  margin: 0 0.75rem 2rem;
+
+  @media (max-width: 1000px) {
+    justify-content: center;
+  }
 }
 
 .job {
@@ -49,9 +51,14 @@ export default {
     }
   }
   & ul {
+    max-width: 250px;
+    margin: 0 auto;
+
     @include display_flex_align_items;
-    justify-content: center;
     gap: 0.5rem;
+    flex-wrap: initial;
+    overflow-x: auto;
+    padding: 0.25rem;
 
     & li {
       @include badge;

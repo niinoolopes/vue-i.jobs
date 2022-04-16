@@ -1,15 +1,12 @@
 <template>
   <div class="perfil-list">
-    <div class="perfil" v-for="perfil in perfilList" :key="perfil">
+    <div class="perfil" v-for="perfil in perfilList" :key="perfil.id">
       <div class="perfil-header">
         <img src="@/assets/perfil.png" alt="photo perfil" />
-        <p>name</p>
+        <p>{{ perfil.name }}</p>
       </div>
       <ul>
-        <li>PHP</li>
-        <li>JS</li>
-        <li>CSS</li>
-        <li>HTML</li>
+        <li v-for="skill in perfil.skill" :key="skill.id">{{ skill.name }}</li>
       </ul>
     </div>
   </div>
@@ -19,10 +16,11 @@
 export default {
   name: "HomePerfilList",
 
-  data() {
-    return {
-      perfilList: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-    };
+  props: {
+    perfilList: {
+      type: Array,
+      default: () => [],
+    },
   },
 };
 </script>
@@ -30,8 +28,12 @@ export default {
 <style lang="scss" scoped>
 .perfil-list {
   @include display_grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 350px));
+  margin: 0 0.75rem 2rem;
+
+  @media (max-width: 1000px) {
+    justify-content: center;
+  }
 }
 
 .perfil {
@@ -47,6 +49,10 @@ export default {
       border: 1px solid;
       border-radius: 50%;
       max-width: 4rem;
+
+      @media (max-width: 1000px) {
+        display: none;
+      }
     }
     & p {
       font-size: 1.25rem;
@@ -55,9 +61,14 @@ export default {
     }
   }
   & ul {
+    max-width: 250px;
+    margin: 0 auto;
+
     @include display_flex_align_items;
-    justify-content: center;
     gap: 0.5rem;
+    flex-wrap: initial;
+    overflow-x: auto;
+    padding: 0.25rem;
 
     & li {
       @include badge;

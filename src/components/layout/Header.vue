@@ -4,8 +4,13 @@
       <router-link to="/" class="header-brand">I.jobs</router-link>
 
       <ul class="header-links">
-        
-        <router-link to="/login">Entrar</router-link>
+        <template v-if="$store.state.logged">
+          <router-link to="/panel">Painel</router-link>
+          <router-link to="/perfil">Perfil</router-link>
+        </template>
+
+        <a v-if="$store.state.logged" @click="onSignOut">Sair</a>
+        <router-link v-else to="/login">Entrar</router-link>
       </ul>
     </div>
   </header>
@@ -14,6 +19,13 @@
 <script>
 export default {
   name: "LayoutHeader",
+
+  methods: {
+    async onSignOut() {
+      await this.$store.dispatch("signOut");
+      await this.$router.push("/");
+    },
+  },
 };
 </script>
 

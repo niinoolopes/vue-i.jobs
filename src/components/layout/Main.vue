@@ -14,5 +14,7 @@ export default {
 .main {
   @include container;
   position: relative;
+
+  overflow-y: auto;
 }
 </style>

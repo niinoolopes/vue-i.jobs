@@ -37,7 +37,8 @@ export default {
   data() {
     return {
       fields: {
-        email: "nino@gmail.com",
+        // email: "nino@gmail.com",
+        email: "empresa1@gmail.com",
         password: 1234,
       },
     };
@@ -50,16 +51,11 @@ export default {
       const { status, data } = await axios.post("/api/signin", form);
 
       if (status !== 200) {
+        window.alert("Ops.. algo aconteceu! contate o suporte");
         return;
       }
 
-      await this.$store.dispatch("signIn", {
-        id: data.usuario.id,
-        name: data.usuario.name,
-        email: data.usuario.email,
-      });
-
-      await this.$router.push("/panel");
+      this.onSignIn(data);
     },
 
     async signInWithGoogle() {
@@ -81,11 +77,11 @@ export default {
         return;
       }
 
-      await this.$store.dispatch("signIn", {
-        id: data.usuario.id,
-        name: data.usuario.name,
-        email: data.usuario.email,
-      });
+      this.onSignIn(data);
+    },
+
+    async onSignIn(data) {
+      await this.$store.dispatch("signIn",data);
 
       await this.$router.push("/panel");
     },
