@@ -1,4 +1,4 @@
-import { belongsTo, createServer, hasMany, Model, Response } from "miragejs"
+import { createServer, Model, Response } from "miragejs"
 import seedHabilidade from './seeds/habilidade'
 import seedEmpresa from './seeds/empresa'
 import seedVaga from './seeds/vaga'
@@ -8,20 +8,11 @@ export function makeServer({ environment = "development" } = {}) {
   let server = createServer({
     environment,
 
-
     models: {
       habilidade: Model,
-      empresa: Model.extend({
-        vaga: hasMany()
-      }),
-      vaga: Model.extend({
-        usuario: belongsTo(),
-        habilidade: hasMany()
-      }),
-      usuario: Model.extend({
-        vaga: belongsTo(),
-        habilidade: hasMany()
-      }),
+      empresa: Model.extend(),
+      vaga: Model.extend(),
+      usuario: Model.extend(),
     },
 
     seeds(server) {
@@ -36,60 +27,114 @@ export function makeServer({ environment = "development" } = {}) {
 
       // EMPRESA
       this.get('/empresa', (schema) => {
-        const data = schema.empresas.all().models
-          // filtro de empresa que contem vagas
-          // .filter(model => {
-          //   return model.vaga.models.length
-          // })
-          // limite em 10 empresas
-          .splice(0, 10)
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
+        const vagas = schema.vagas.all().models.map(vaga => {
+          const skillIds = vaga.habilidadeIds.map(n => +n)
+
+          const skill = habilidades.filter(skill => skillIds.includes(skill.id))
+
+          return {
+            id: +vaga.id,
+            name: vaga.name,
+            description: vaga.description,
+            skill,
+            skillIds,
+          }
+        })
+
+        const empresas = schema.empresas.all().models
+          .filter(model => {
+            return model.vagaIds.length
+          })
           .map(model => {
+            const jobsIds = model.vagaIds.map(n => +n)
+
+            const jobs = vagas.filter(({ id }) => jobsIds.includes(id))
+
             return {
-              id: model.id,
+              id: +model.id,
               name: model.name,
               description: model.description,
-              jobs: model.vaga.models.map(job => ({
-                id: job.id,
-                name: job.name,
-                description: job.description,
-                skill: job.habilidade.models.map(({ id, name }) => ({ id, name })),
-              })),
+              jobs,
+              jobsIds
             }
           })
 
-        return new Response(200, {}, data);
+        return new Response(200, {}, empresas);
       })
       this.get('/empresa/:id', (schema, request) => {
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
+        const vagas = schema.vagas.all().models.map(vaga => {
+          const skillIds = vaga.habilidadeIds.map(n => +n)
+
+          const skill = habilidades.filter(skill => skillIds.includes(skill.id))
+
+          return {
+            id: +vaga.id,
+            name: vaga.name,
+            description: vaga.description,
+            skill,
+            skillIds,
+          }
+        })
+
         let id = request.params.id
 
-        const data = schema.empresas.find(id)
+        const empresa = schema.empresas.find(id)
+
+        const jobsIds = empresa.vagaIds
+        const jobs = vagas.filter(({ id }) => jobsIds.includes(id))
 
         return new Response(200, {}, {
-          id: data.id,
-          name: data.name,
-          description: data.description,
-          // servicosId: data.servicosId,
-          // service: data.vagas.models,
+          id: +empresa.id,
+          name: empresa.name,
+          description: empresa.description,
+          jobs,
+          jobsIds
         });
       })
       this.put('/empresa/:id', (schema, request) => {
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
+        const vagas = schema.vagas.all().models.map(vaga => {
+          const skillIds = vaga.habilidadeIds.map(n => +n)
+
+          const skill = habilidades.filter(skill => skillIds.includes(skill.id))
+
+          return {
+            id: +vaga.id,
+            name: vaga.name,
+            description: vaga.description,
+            skill,
+            skillIds,
+          }
+        })
+
         let id = request.params.id
         let { name, email, description } = JSON.parse(request.requestBody)
 
-        const data = schema.empresas.find(id).update({ name, email, description })
+        const empresa = schema.empresas.find(id).update({ name, email, description })
+
+        const jobsIds = empresa.vagaIds
+        const jobs = vagas.filter(({ id }) => jobsIds.includes(id))
 
         return new Response(200, {}, {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          description: data.description,
-          vaga: data.vaga.models.map(model => ({
-            id: model.id,
-            name: model.name,
-            description: model.description,
-            skill: model.habilidade.models
-          })),
-          vagaIds: data.vaga.models.map(({ id }) => +id)
+          id: +empresa.id,
+          name: empresa.name,
+          description: empresa.description,
+          jobs,
+          jobsIds
         });
       })
 
@@ -99,18 +144,37 @@ export function makeServer({ environment = "development" } = {}) {
         const paramsSkill = request.queryParams?.skill?.map(n => +n) || []
         const paramsCompany = request.queryParams?.company || 0
 
-        const empresas = schema.empresas.all().models
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
+        const empresas = schema.empresas.all().models.map(empresa => ({
+          id: +empresa.id,
+          name: empresa.name,
+          description: empresa.description,
+        }))
 
         let data = schema.vagas.all().models
-          .filter(model => !model.usuarioId)
-          .map(model => {
+          // .filter(model => !model.usuarioId)
+          .map(vaga => {
+
+            const empresaId = +vaga.empresaId
+
+            const empresa = empresas.filter(e => e.id === empresaId)
+
+            const skillIds = vaga.habilidadeIds.map(n => +n)
+
+            const skill = habilidades.filter(skill => skillIds.includes(skill.id))
+
             return {
-              id: model.id,
-              name: model.name,
-              description: model.description,
-              skill: model.habilidade.models,
-              empresa: empresas.filter(e => +e.id === +model.empresaId),
-              empresaIds: empresas.map(e => +e.id),
+              id: +vaga.id,
+              name: vaga.name,
+              description: vaga.description,
+              skill,
+              skillIds,
+              empresa,
+              empresaId,
             }
           })
 
@@ -127,20 +191,76 @@ export function makeServer({ environment = "development" } = {}) {
         return new Response(200, {}, data);
       })
       this.post('/vaga', (schema, request) => {
-        const empresas = schema.empresas.all().models
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
+        const empresas = schema.empresas.all().models.map(empresa => ({
+          id: +empresa.id,
+          name: empresa.name,
+          description: empresa.description,
+        }))
 
         let { name, description, empresaId, skill: habilidadeIds } = JSON.parse(request.requestBody)
 
-        const data = schema.vagas.create({ name, description, empresaId, habilidadeIds })
+        const vaga = schema.vagas.create({ name, description, empresaId, habilidadeIds })
+
+        const empresa = empresas.filter(e => e.id === empresaId)
+
+        const skillIds = habilidadeIds.map(n => +n)
+
+        const skill = habilidades.filter(skill => skillIds.includes(skill.id))
 
         return new Response(200, {}, {
-          id: data.id,
-          name: data.name,
-          description: data.description,
-          skill: data.habilidade.models,
-          empresa: empresas.filter(e => +e.id === +data.empresaId),
-          empresaIds: empresas.map(e => +e.id),
+          id: +vaga.id,
+          name: vaga.name,
+          description: vaga.description,
+          skill,
+          skillIds,
+          empresa,
+          empresaId,
         });
+      })
+      this.put('/vaga/:id', (schema, request) => {
+        let id = request.params.id
+        let { name, description, empresaId, skill: habilidadeIds } = JSON.parse(request.requestBody)
+
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
+        const empresas = schema.empresas.all().models.map(empresa => ({
+          id: +empresa.id,
+          name: empresa.name,
+          description: empresa.description,
+        }))
+
+        const vaga = schema.vagas.find(id).update({ name, description, empresaId, habilidadeIds })
+
+        const empresa = empresas.filter(e => e.id === empresaId)
+
+        const skillIds = habilidadeIds.map(n => +n)
+
+        const skill = habilidades.filter(skill => skillIds.includes(skill.id))
+
+        return new Response(200, {}, {
+          id: +vaga.id,
+          name: vaga.name,
+          description: vaga.description,
+          skill,
+          skillIds,
+          empresa,
+          empresaId,
+        });
+      })
+      this.del('/vaga/:id', (schema, request) => {
+        let id = request.params.id
+
+        schema.vagas.find(id).destroy()
+
+        return new Response(204, {}, {});
       })
 
 
@@ -150,38 +270,63 @@ export function makeServer({ environment = "development" } = {}) {
 
         const resultUsuario = schema.usuarios.where({ email, password }).models
 
-        // find USUARIO
-        if (resultUsuario.length) {
-          const [data] = resultUsuario
+        if (resultUsuario.length > 0) {
+          const [usuario] = resultUsuario
+
+          console.log('signin usuario', usuario);
 
           return new Response(200, {}, {
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            type: data.type,
-            skill: data.habilidade.models.map(({ id }) => +id),
-            // skill: data.habilidade.models.map(({ id, name }) => ({ id, name })),
-            // skillIds: data.habilidade.models.map(({ id }) => +id),
+            id: usuario.id,
+            name: usuario.name,
+            email: usuario.email,
+            type: usuario.type,
+            // skill: usuario.habilidade.models.map(({ id }) => +id),
+            // skill: usuario.habilidade.models.map(({ id, name }) => ({ id, name })),
+            skillIds: usuario.habilidadeIds.map(n => +n),
           });
         }
 
         // find EMPRESA
         const resultEmpresa = schema.empresas.where({ email, password }).models
-        if (resultEmpresa.length) {
-          const [data] = resultEmpresa
+
+        if (resultEmpresa.length > 0) {
+          const [empresa] = resultEmpresa
+
+          console.log('signin empresa', empresa);
+
+          // const habilidades = schema.habilidades.all().models.map(skill => ({
+          //   id: +skill.id,
+          //   name: skill.name,
+          // }))
+
+          const vagaIds = empresa.vagaIds.map(n => +n)
+
+          // const vagas = schema.vagas.all().models
+          //   .filter(vaga => vagaIds.includes(+vaga.id))
+          //   .map(vaga => {
+
+          //     const skillIds = vaga.habilidadeIds.map(n => +n)
+
+          //     const skill = habilidades.filter(skill => skillIds.includes(skill.id))
+
+          //     return {
+          //       id: +vaga.id,
+          //       name: vaga.name,
+          //       description: vaga.description,
+          //       skill,
+          //       skillIds,
+          //       // empresa,
+          //       // empresaId,
+          //     }
+          //   })
 
           return new Response(200, {}, {
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            description: data.description,
-            vaga: data.vaga.models.map(model => ({
-              id: model.id,
-              name: model.name,
-              description: model.description,
-              skill: model.habilidade.models
-            })),
-            vagaIds: data.vaga.models.map(({ id }) => +id)
+            id: empresa.id,
+            name: empresa.name,
+            email: empresa.email,
+            description: empresa.description,
+            // vaga: vagas,
+            vagaIds
           });
         }
 
@@ -205,19 +350,30 @@ export function makeServer({ environment = "development" } = {}) {
         const paramsSkill = request.queryParams?.skill?.map(n => +n) || []
         const paramsLimit = request.queryParams?.limit || 0
 
+        const habilidades = schema.habilidades.all().models.map(skill => ({
+          id: +skill.id,
+          name: skill.name,
+        }))
+
         let data = schema.usuarios.all().models
           // filtra por candidatos sem vagas
           .filter(model => {
             return !model.vaga
           })
-          .map(model => ({
-            id: model.id,
-            name: model.name,
-            email: model.email,
-            type: model.type,
-            skill: model.habilidade.models.map(({ id, name }) => ({ id, name })),
-            skillIds: model.habilidade.models.map(({ id }) => +id),
-          }))
+          .map(model => {
+            const skillIds = model.habilidadeIds.map(id => +id)
+
+            const skill = habilidades.filter(({ id }) => skillIds.includes(id))
+
+            return {
+              id: +model.id,
+              name: model.name,
+              email: model.email,
+              type: model.type,
+              skill,
+              skillIds
+            }
+          })
 
         // filtra por skill via url
         if (paramsSkill.length > 0) {
@@ -230,9 +386,9 @@ export function makeServer({ environment = "development" } = {}) {
         return new Response(200, {}, data);
       })
       this.post('/usuario', (schema, request) => {
-        let { name, email, password, type, skill: habilidadeIds } = JSON.parse(request.requestBody)
+        let { uid, name, email, password, type, skill: habilidadeIds } = JSON.parse(request.requestBody)
 
-        const data = schema.usuarios.create({ name, email, password, type, habilidadeIds })
+        const data = schema.usuarios.create({ uid, name, email, password, type, habilidadeIds })
 
         return new Response(200, {}, {
           id: data.id,
@@ -245,9 +401,9 @@ export function makeServer({ environment = "development" } = {}) {
       })
       this.put('/usuario/:id', (schema, request) => {
         let id = request.params.id
-        let { name, email, type } = JSON.parse(request.requestBody)
+        let { name, email, type, habilidadeIds } = JSON.parse(request.requestBody)
 
-        const data = schema.usuarios.find(id).update({ name, email, type })
+        const data = schema.usuarios.find(id).update({ name, email, type, habilidadeIds })
 
         return new Response(200, {}, {
           id: data.id,
