@@ -7,10 +7,10 @@ export default createStore({
   },
   getters: {
     isUser(state) {
-      return !!state.perfil?.skill
+      return state.logged && !!state.perfil?.skillIds
     },
     isCompany(state) {
-      return !state.perfil?.skill
+      return state.logged && !!state.perfil?.vagaIds
     },
   },
   mutations: {

@@ -71,6 +71,7 @@ export default {
   data() {
     return {
       fields: {
+        uid: null,
         name: "anderson",
         email: "niinoolopes0@gmail.com",
         password: "1234",
@@ -103,8 +104,9 @@ export default {
     },
 
     async registerWithGoogle() {
-      const { name, email } = await authUser();
+      const { uid, name, email } = await authUser();
 
+      this.fields.uid = uid;
       this.fields.name = name;
       this.fields.email = email;
 

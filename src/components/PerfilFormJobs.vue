@@ -35,7 +35,6 @@
     <div class="actions">
       <button type="submit">Cadastrar</button>
     </div>
-
   </form>
 </template>
 
@@ -46,21 +45,9 @@ export default {
   data() {
     return {
       fields: {
-        name: "",
-        description: "",
-        skill: [],
+        ...this.$store.state.perfil,
       },
       vagas: [],
-      jobs: [
-        {
-          id: 1,
-          name: "Front-End",
-          description: "Front-End",
-          empresaId: 1,
-          habilidadeIds: [9, 8, 4, 5],
-          usuarioId: null,
-        },
-      ],
       skills: [],
     };
   },
@@ -84,7 +71,7 @@ export default {
         return;
       }
 
-      alert(status === 200 ? 'Vaga criada com sucesso' : 'Algo deu errado em!')
+      alert(status === 200 ? "Vaga criada com sucesso" : "Algo deu errado em!");
 
       this.fields = {
         name: "",
@@ -92,7 +79,7 @@ export default {
         skill: [],
       };
 
-      this.$emit('getJobs')
+      this.$emit("getJobs");
     },
 
     async getSkill() {
@@ -100,8 +87,9 @@ export default {
 
       this.skills = status === 200 ? data : [];
 
-      !status &&
+      if (status !== 200) {
         window.alert("Ops.. algo aconteceu! [skills] contate o suporte");
+      }
     },
   },
 };

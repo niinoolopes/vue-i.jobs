@@ -52,23 +52,27 @@ export default {
 
       this.perfilList = status === 200 ? data : [];
 
-      !status &&
+      if (status !== 200) {
         window.alert("Ops.. algo aconteceu! [perfil] contate o suporte");
+      }
     },
     async getJobs() {
       const { status, data } = await axios.get("/api/vaga");
 
       this.jobList = status === 200 ? data : [];
 
-      !status && window.alert("Ops.. algo aconteceu! [jobs] contate o suporte");
+      if (status !== 200) {
+        window.alert("Ops.. algo aconteceu! [jobs] contate o suporte");
+      }
     },
     async getCompany() {
       const { status, data } = await axios.get("/api/empresa");
 
       this.companyList = status === 200 ? data : [];
 
-      !status &&
+      if (status !== 200) {
         window.alert("Ops.. algo aconteceu! [company] contate o suporte");
+      }
     },
   },
 };

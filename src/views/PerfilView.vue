@@ -75,7 +75,7 @@
                 :for="skill.id"
               >
                 <input
-                  v-model="fields.skill"
+                  v-model="fields.skillIds"
                   type="checkbox"
                   :id="skill.id"
                   :value="skill.id"
@@ -150,22 +150,52 @@ export default {
   },
 
   methods: {
-    async onSubmit() {
-      const { id, ...form } = this.fields;
-
-      if (form?.type === "company") {
-        form.skill = [];
+    onSubmit() {
+      if (this.$store.getters.isCompany) {
+        this.submitCompany();
       }
 
-      const { status } = this.$store.getters.isUser
-        ? await axios.put(`/api/usuario/${id}`, form)
-        : await axios.put(`/api/empresa/${id}`, form);
+      if (this.$store.getters.isUser) {
+        this.submitUser();
+      }
+    },
+
+    async submitUser() {
+      const { id, name, email, type, skillIds } = this.fields;
+
+      const form = {
+        name,
+        email,
+        type,
+        skillIds,
+      };
+
+      const { status } = await axios.put(`/api/usuario/${id}`, form);
 
       alert(status === 200 ? "Tudo salvo" : "Algo deu errado em!");
 
       await this.$store.commit("SET", {
         key: "perfil",
-        value: { ...this.fields },
+        value: form,
+      });
+    },
+
+    async submitCompany() {
+      const { id, name, email, description } = this.fields;
+
+      const form = {
+        name,
+        email,
+        description,
+      };
+
+      const { status } = await axios.put(`/api/empresa/${id}`, form);
+
+      alert(status === 200 ? "Tudo salvo" : "Algo deu errado em!");
+
+      await this.$store.commit("SET", {
+        key: "perfil",
+        value: form,
       });
     },
 
